@@ -1,13 +1,23 @@
-require 'random_data'
-
- 50.times do
-   Wiki.create!(
-     title:  RandomData.random_sentence,
-     body:   RandomData.random_paragraph
-   )
+5.times do
+  user = User.create!(
+    email:    Faker::Internet.email,
+    password: Faker::Internet.password
+  )
 end
 
-  wikis = Wiki.all
+users = User.all
 
- puts "Seed finished"
- puts "#{Wiki.count} wikis created"
+15.times do
+  wiki = Wiki.create!(
+  user:    users.sample,
+  title:   Faker::StarWars.character,
+  body:    Faker::StarWars.quote,
+  private: Faker::Boolean.boolean
+  )
+end
+
+wikis = Wiki.all
+
+puts "Seed finished"
+puts "#{User.count} users created"
+puts "#{Wiki.count} wikis created"

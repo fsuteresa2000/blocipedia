@@ -5,7 +5,8 @@ require 'random_data'
      title:  RandomData.random_sentence,
      body:   RandomData.random_paragraph
    )
- end
+end
+
   wikis = Wiki.all
 
  puts "Seed finished"

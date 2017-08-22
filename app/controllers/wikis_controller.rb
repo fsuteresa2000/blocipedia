@@ -1,5 +1,4 @@
 class WikisController < ApplicationController
-  before_action :authenticate_user!
 
   def index
     @wikis = Wiki.all
@@ -11,12 +10,14 @@ class WikisController < ApplicationController
 
   def new
     @wiki = Wiki.new
+    authorize @wiki
+
   end
 
   def create
-     @wiki = Wiki.new
-     @wiki.title = params[:wiki][:title]
-     @wiki.body = params[:wiki][:body]
+     @wiki = Wiki.new(wiki_params)
+     @wiki.user = current_user
+     authorize @wiki
 
      if @wiki.save
        flash[:notice] = "Wiki was saved successfully"
@@ -29,14 +30,14 @@ class WikisController < ApplicationController
 
   def edit
     @wiki = Wiki.find(params[:id])
+    authorize @wiki
   end
 
 def update
      @wiki = Wiki.find(params[:id])
-     @wiki.title = params[:wiki][:title]
-     @wiki.body = params[:wiki][:body]
+     authorize @wiki
 
-     if @wiki.save
+     if @wiki.update_attributes(wiki_params)
        flash[:notice] = "\"#{@wiki.title}\" was updated successfully."
        redirect_to @wiki
      else
@@ -63,4 +64,5 @@ def update
      def wiki_params
        params.require(:wiki).permit(:title, :body, :private)
      end
-  end
+
+end

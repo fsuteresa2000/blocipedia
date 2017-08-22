@@ -7,20 +7,20 @@ class ApplicationPolicy
   end
 
   def index?
-    true
-  end
+      false
+    end
 
   def show?
-    scope.where(:id => record.id).exists?
+    scope.where(:id => wiki.id).exists?
   end
 
   def create?
-    user.present
-  end
+      false
+    end
 
-  def new?
-    create?
-  end
+    def new?
+      create?  
+    end
 
   def update?
     user.present?
@@ -31,7 +31,7 @@ class ApplicationPolicy
   end
 
   def destroy?
-    user.admin?
+    false
   end
 
   def scope

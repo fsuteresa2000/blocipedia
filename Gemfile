@@ -24,6 +24,7 @@ source 'https://rubygems.org'
  gem 'pundit'
  gem 'bootstrap'
  gem 'stripe'
+ gem 'redcarpet'
 
 
 

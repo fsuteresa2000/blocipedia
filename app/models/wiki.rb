@@ -1,14 +1,8 @@
 class Wiki < ActiveRecord::Base
   belongs_to :user
+  scope :visible_to, -> (user) { user ? all : where(private: false) }
 
-  def private?
-   self.private == true
+     def publicize
+       update_attribute(:private, false)
+     end
   end
-
-  private
-
-  def make_public
-    self.private = false
-  end
-
-end

@@ -1,39 +1,46 @@
 class WikisController < ApplicationController
 
   def index
-    @wikis = Wiki.all
+    @wikis = Wiki.visible_to(current_user)
   end
 
   def show
     @wiki = Wiki.find(params[:id])
+    unless (@wiki.private == false) || current_user.member? || current_user.admin?
+      flash[:alert] = "You must be a premium user to view private topics."
+        if current_user
+          redirect_to new_charge_path
+        else
+          redirect_to new_user_registration_path
+         end
+     end  
   end
 
   def new
     @wiki = Wiki.new
     authorize @wiki
-
   end
 
   def create
-     @wiki = Wiki.new(wiki_params)
-     @wiki.user = current_user
-     authorize @wiki
+    @wiki = Wiki.new(wiki_params)
+    @wiki.user = current_user
+    authorize @wiki
 
-     if @wiki.save
-       flash[:notice] = "Wiki was saved successfully"
-       redirect_to @wiki
-     else
-       flash.now[:alert] = "There was an error saving the wiki. Please try again."
-       render :new
-     end
-   end
+    if @wiki.save
+      flash[:notice] = "Your wiki was saved successfully."
+      redirect_to @wiki
+    else
+      flash.now[:alert] = "There was an error saving your wiki. Please try again."
+      render :new
+    end
+  end
 
   def edit
     @wiki = Wiki.find(params[:id])
     authorize @wiki
   end
 
-def update
+  def update
      @wiki = Wiki.find(params[:id])
      authorize @wiki
 

@@ -9,14 +9,18 @@ class User < ActiveRecord::Base
 
   has_many :wikis, dependent: :destroy
 
-  before_create :make_standard
+  before_create :make_guest
 
-  def standard?
-    role == 'standard'
+  def going_public
+    self.wikis.each { |wiki| puts wiki.publicize }
   end
 
-  def premium?
-    role == 'premium'
+  def guest?
+    role == 'guest'
+  end
+
+  def member?
+    role == 'member'
   end
 
   def admin?
@@ -24,13 +28,13 @@ class User < ActiveRecord::Base
   end
 
   def downgrade_account
-    self.update_attribute(:role, 'standard')
+    self.update_attribute(:role, 'guest')
   end
 
 
   private
 
-  def make_standard
-    self.role = 'standard'
+  def make_guest
+    self.role = 'guest'
   end
 end

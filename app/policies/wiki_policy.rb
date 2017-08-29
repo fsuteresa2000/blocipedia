@@ -43,26 +43,43 @@ class WikiPolicy < ApplicationPolicy
         end
 
         def resolve
-          wikis = []
-          if user.role == 'admin'
-            wikis = scope.all # if the user is an admin, show them all the wikis
-          elsif user.role == 'member'
-            all_wikis = scope.all
-            all_wikis.each do |wiki|
-              if !wiki.private? || wiki.user == user || wiki.users.include?(user)
-                wikis << wiki
-              end
-            end
-          else
-            all_wikis = scope.all
             wikis = []
-            all_wikis.each do |wiki|
-              if !wiki.private? || wiki.users.include?(user)
-                wikis << wiki
-              end
+            if user.nil?
+                all_wikis = scope.all
+                wikis = []
+                all_wikis.each do |wiki|
+                    if wiki.private == false
+                        wikis << wiki
+                    end
+                end
+            elsif user.admin?
+                wikis = scope.all
+            elsif user.member?
+                all_wikis = scope.all
+                wikis = []
+                collaborators = []
+                all_wikis.each do |wiki|
+                    wiki.collaborators.each do |collaborator|
+                        collaborators << collaborator.email
+                    end
+                    if wiki.private == false || wiki.user == user || collaborators.include?(user.email)
+                        wikis << wiki
+                    end
+                end
+            else
+                all_wikis = scope.all
+                wikis = []
+                collaborators = []
+                all_wikis.each do |wiki|
+                    wiki.collaborators.each do |collaborator|
+                        collaborators << collaborator.email
+                    end
+                    if wiki.private == true || collaborators.include?(user.email)
+                        wikis << wiki
+                    end
+                end
             end
-          end
-          wikis
+            wikis
         end
-      end
     end
+end

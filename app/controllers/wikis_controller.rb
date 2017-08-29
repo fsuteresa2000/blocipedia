@@ -1,7 +1,6 @@
 class WikisController < ApplicationController
-
   def index
-    @wikis = Wiki.visible_to(current_user)
+    @wikis = policy_scope(Wiki)
   end
 
   def show
@@ -41,15 +40,20 @@ class WikisController < ApplicationController
   end
 
   def update
-     @wiki = Wiki.find(params[:id])
-     authorize @wiki
+    @wiki = Wiki.find(params[:id])
+        @wiki.assign_attributes(wiki_params)
+        authorize @wiki
 
-     if @wiki.update_attributes(wiki_params)
-       flash[:notice] = "\"#{@wiki.title}\" was updated successfully."
-       redirect_to @wiki
-     else
-       flash.now[:alert] = "There was an error saving the wiki. Please try again."
-       render :edit
+        if @wiki.save && (@wiki.user == current_user || current_user.admin?)
+          @wiki.collaborators = Collaborator.update_collaborators(params[:wiki][:collaborators])
+          flash[:notice] = "\"#{@wiki.title}\" was updated successfully."
+          redirect_to @wiki
+        elsif @wiki.save
+          flash[:notice] = "Wiki was updated successfully."
+          redirect_to @wiki
+        else
+          flash.now[:alert] = "There was an error saving the wiki. Please try again."
+          render :edit
      end
    end
 
